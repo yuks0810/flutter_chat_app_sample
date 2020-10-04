@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
+  AuthForm(this.submitFn);
+
+  final void Function(
+    String email,
+    String password,
+    String username,
+    bool isLogin,
+  ) submitFn;
+
   @override
   _AuthFormState createState() => _AuthFormState();
 }
@@ -18,9 +27,12 @@ class _AuthFormState extends State<AuthForm> {
 
     if (isValid) {
       _formKey.currentState.save();
-      print(_userEmail);
-      print(_userName);
-      print(_userPassword);
+      widget.submitFn(
+        _userEmail,
+        _userName,
+        _userPassword,
+        _isLogin,
+      );
       // use those values to send our auth request ...
     }
   }
@@ -61,13 +73,13 @@ class _AuthFormState extends State<AuthForm> {
                       if (value.isEmpty || value.length < 4) {
                         return 'Please enter at least 4 characters.';
                       }
-                    return null;
-                  },
-                  decoration: InputDecoration(labelText: 'Username'),
-                  onSaved: (value) {
-                    _userName = value;
-                  },
-                ),
+                      return null;
+                    },
+                    decoration: InputDecoration(labelText: 'Username'),
+                    onSaved: (value) {
+                      _userName = value;
+                    },
+                  ),
                 TextFormField(
                   key: ValueKey('password'),
                   validator: (value) {
@@ -93,10 +105,12 @@ class _AuthFormState extends State<AuthForm> {
                   textColor: Theme.of(context).primaryColor,
                   onPressed: () {
                     setState(() {
-                      _isLogin = !_isLogin;  
+                      _isLogin = !_isLogin;
                     });
                   },
-                  child: Text(_isLogin ? 'Create new account' : 'I.already have an account'),
+                  child: Text(_isLogin
+                      ? 'Create new account'
+                      : 'I.already have an account'),
                 )
               ],
             ),
