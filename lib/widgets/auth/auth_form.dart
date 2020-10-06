@@ -10,7 +10,7 @@ class AuthForm extends StatefulWidget {
   final void Function(
     String email,
     String password,
-    String username,
+    String userName,
     bool isLogin,
     BuildContext ctx,
   ) submitFn;
@@ -28,18 +28,12 @@ class _AuthFormState extends State<AuthForm> {
 
   void _trySubmit() {
     final isValid = _formKey.currentState.validate();
-    FocusScope.of(context).unfocus(); // close keyboard
+    FocusScope.of(context).unfocus();
 
     if (isValid) {
       _formKey.currentState.save();
-      widget.submitFn(
-        _userEmail.trim(),
-        _userName.trim(),
-        _userPassword.trim(),
-        _isLogin,
-        context,
-      );
-      // use those values to send our auth request ...
+      widget.submitFn(_userEmail.trim(), _userPassword.trim(), _userName.trim(),
+          _isLogin, context);
     }
   }
 
@@ -49,82 +43,81 @@ class _AuthFormState extends State<AuthForm> {
       child: Card(
         margin: EdgeInsets.all(20),
         child: SingleChildScrollView(
-            child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  key: ValueKey('email'),
-                  validator: (value) {
-                    if (value.isEmpty || !value.contains('@')) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email Address',
-                  ),
-                  onSaved: (value) {
-                    _userEmail = value;
-                  },
-                ),
-                if (!_isLogin)
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
                   TextFormField(
-                    key: ValueKey('username'),
+                    key: ValueKey('email'),
                     validator: (value) {
-                      if (value.isEmpty || value.length < 4) {
-                        return 'Please enter at least 4 characters.';
+                      if (value.isEmpty || !value.contains('@')) {
+                        return 'Please enter a valid email address.';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(labelText: 'Username'),
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Email address',
+                    ),
                     onSaved: (value) {
-                      _userName = value;
+                      _userEmail = value;
                     },
                   ),
-                TextFormField(
-                  key: ValueKey('password'),
-                  validator: (value) {
-                    if (value.isEmpty || value.length < 7) {
-                      return 'Password must be at least 7 characters log.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _userPassword = value;
-                  },
-                  decoration: InputDecoration(labelText: 'Password'),
-                  obscureText: true, // hide password on display
-                ),
-                SizedBox(height: 12),
-                if (widget.isLoading) CircularProgressIndicator(),
-                if (!widget.isLoading)
-                  RaisedButton(
-                    child: Text(_isLogin ? 'Login' : 'Sign Up'),
-                    onPressed: () {
-                      _trySubmit();
+                  if (!_isLogin)
+                    TextFormField(
+                      key: ValueKey('username'),
+                      validator: (value) {
+                        if (value.isEmpty || value.length < 4) {
+                          return 'Please enter at least 4 characters';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(labelText: 'Username'),
+                      onSaved: (value) {
+                        _userName = value;
+                      },
+                    ),
+                  TextFormField(
+                    key: ValueKey('password'),
+                    validator: (value) {
+                      if (value.isEmpty || value.length < 7) {
+                        return 'Password must be at least 7 characters long.';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(labelText: 'Password'),
+                    obscureText: true,
+                    onSaved: (value) {
+                      _userPassword = value;
                     },
                   ),
-                if (!widget.isLoading)
-                  FlatButton(
-                    textColor: Theme.of(context).primaryColor,
-                    onPressed: () {
-                      setState(() {
-                        _isLogin = !_isLogin;
-                      });
-                    },
-                    child: Text(_isLogin
-                        ? 'Create new account'
-                        : 'I.already have an account'),
-                  )
-              ],
+                  SizedBox(height: 12),
+                  if (widget.isLoading) CircularProgressIndicator(),
+                  if (!widget.isLoading)
+                    RaisedButton(
+                      child: Text(_isLogin ? 'Login' : 'Signup'),
+                      onPressed: _trySubmit,
+                    ),
+                  if (!widget.isLoading)
+                    FlatButton(
+                      textColor: Theme.of(context).primaryColor,
+                      child: Text(_isLogin
+                          ? 'Create new account'
+                          : 'I already have an account'),
+                      onPressed: () {
+                        setState(() {
+                          _isLogin = !_isLogin;
+                        });
+                      },
+                    )
+                ],
+              ),
             ),
           ),
-        )),
+        ),
       ),
     );
   }
